@@ -14,7 +14,6 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-# Colors for better logging (optional)
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'

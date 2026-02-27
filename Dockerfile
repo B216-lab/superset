@@ -1,4 +1,3 @@
-# or master for the latest
 FROM apache/superset:5.0.0
 
 USER root
