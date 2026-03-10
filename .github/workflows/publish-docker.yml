@@ -1,9 +1,9 @@
-name: Continuous Deployment - Geoform
+name: Publish Docker image
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 env:
@@ -21,6 +21,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -47,16 +52,6 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-
-      # - name: update docker image and restart
-      #   uses: appleboy/ssh-action@v1
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.KEY }}
-      #     port: ${{ secrets.PORT }}
-      #     script: |
-      #       cd /opt/geoform
-      #       docker compose down frontend
-      #       docker compose pull frontend
-      #       docker compose up -d
+          build-args: |
+            VITE_DADATA_KEY=${{ secrets.VITE_DADATA_KEY }}
+            VITE_DADATA_API=${{ vars.VITE_DADATA_API }}

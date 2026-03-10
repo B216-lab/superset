@@ -11,7 +11,7 @@ RUN . /app/.venv/bin/activate && \
     # 
     # https://superset.apache.org/docs/configuration/configuring-superset/#custom-oauth2-configuration
     # package needed for using single-sign on authentication:
-    # Authlib \
+    Authlib \
     #
     # openpyxl to be able to upload Excel files
     openpyxl \

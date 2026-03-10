@@ -1,4 +1,5 @@
-# 🐳 Apache Superset Docker image with PostgreSQL driver
+# 🐳 Apache Superset
+B216 Superset docker image with PostgreSQL driver and SSO support.
 
 ```bash
 docker compose up -d --build
@@ -13,4 +14,3 @@ docker compose up -d --build
 - [Building your own production Docker image](https://superset.apache.org/docs/installation/docker-builds#building-your-own-production-docker-image)
 - [Configuring Superset](https://superset.apache.org/docs/configuration/configuring-superset)
 - [Connecting Superset to your local database instance](https://superset.apache.org/docs/installation/docker-compose/#4-connecting-superset-to-your-local-database-instance)
-- [Flowmap.gl](https://flowmap.gl/)
