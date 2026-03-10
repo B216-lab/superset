@@ -4,6 +4,9 @@ import sys
 
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
+from flask_appbuilder.security.manager import AUTH_OAUTH
+
+from custom_sso_security_manager import CustomSsoSecurityManager
 
 logger = logging.getLogger()
 
@@ -92,6 +95,43 @@ if os.getenv("CYPRESS_CONFIG") == "true":
     from superset_test_config import *  # noqa
 
     sys.path.pop(0)
+
+# OAuth / SSO configuration for Authentik (OpenID Connect).
+# CHANGEME: set these values in docker/.env-local before deployment.
+AUTHENTIK_CLIENT_ID = os.getenv("AUTHENTIK_CLIENT_ID", "")
+AUTHENTIK_CLIENT_SECRET = os.getenv("AUTHENTIK_CLIENT_SECRET", "")
+AUTHENTIK_SERVER_METADATA_URL = os.getenv(
+    "AUTHENTIK_SERVER_METADATA_URL",
+    "https://authentik.example.com/application/o/superset/.well-known/openid-configuration",
+)
+
+AUTH_TYPE = AUTH_OAUTH
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = "Gamma"
+AUTH_ROLES_SYNC_AT_LOGIN = True
+AUTH_ROLES_MAPPING = {
+    "superset_admins": ["Admin"],
+    "superset_alpha": ["Alpha"],
+    "superset_gamma": ["Gamma"],
+}
+
+OAUTH_PROVIDERS = [
+    {
+        "name": "authentik",
+        "token_key": "access_token",
+        "icon": "fa-lock",
+        "remote_app": {
+            "client_id": AUTHENTIK_CLIENT_ID,
+            "client_secret": AUTHENTIK_CLIENT_SECRET,
+            "server_metadata_url": AUTHENTIK_SERVER_METADATA_URL,
+            "client_kwargs": {
+                "scope": "openid profile email",
+            },
+        },
+    }
+]
+
+CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 #
 # Optionally import superset_config_docker.py (which will have been included on
