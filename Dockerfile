@@ -3,6 +3,7 @@ FROM apache/superset:6.0.0
 USER root
 
 # Install packages using uv into the virtual environment
+# hadolint ignore=SC1091
 RUN . /app/.venv/bin/activate && \
     uv pip install \
     # https://superset.apache.org/docs/configuration/databases/
@@ -15,7 +16,7 @@ RUN . /app/.venv/bin/activate && \
     #
     # openpyxl to be able to upload Excel files
     openpyxl \
-    
+    #
     # Pillow for Alerts & Reports to generate PDFs of dashboards
     Pillow
 
