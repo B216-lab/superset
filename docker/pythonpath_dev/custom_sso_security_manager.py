@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from superset.security import SupersetSecurityManager
@@ -23,7 +24,16 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
         if provider != "authentik":
             return {}
 
-        userinfo = self.appbuilder.sm.oauth_remotes[provider].get("userinfo/").json()
+        import requests as _req
+
+        access_token = (response or {}).get("access_token", "")
+        authentik_base = os.getenv("AUTHENTIK_BASE_URL", "")
+        userinfo_url = f"{authentik_base}/application/o/userinfo/"
+        userinfo = _req.get(
+            userinfo_url,
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10,
+        ).json()
 
         return {
             "username": userinfo.get("preferred_username"),
