@@ -98,12 +98,9 @@ if os.getenv("CYPRESS_CONFIG") == "true":
 
 # OAuth / SSO configuration for Authentik (OpenID Connect).
 # CHANGEME: set these values in docker/.env-local before deployment.
-AUTHENTIK_CLIENT_ID = os.getenv("AUTHENTIK_CLIENT_ID", "")
-AUTHENTIK_CLIENT_SECRET = os.getenv("AUTHENTIK_CLIENT_SECRET", "")
-AUTHENTIK_SERVER_METADATA_URL = os.getenv(
-    "AUTHENTIK_SERVER_METADATA_URL",
-    "https://authentik.example.com/application/o/superset/.well-known/openid-configuration",
-)
+AUTHENTIK_CLIENT_ID = os.getenv("AUTHENTIK_CLIENT_ID")
+AUTHENTIK_CLIENT_SECRET = os.getenv("AUTHENTIK_CLIENT_SECRET")
+AUTHENTIK_SERVER_METADATA_URL = os.getenv("AUTHENTIK_SERVER_METADATA_URL")
 
 AUTH_TYPE = AUTH_OAUTH
 AUTH_USER_REGISTRATION = True
@@ -115,25 +112,38 @@ AUTH_ROLES_MAPPING = {
     "superset_gamma": ["Gamma"],
 }
 
+
+# Derive the application-specific base URL by stripping the discovery suffix.
+# AUTHENTIK_SERVER_METADATA_URL is e.g. https://auth.b216.ru/application/o/superset/.well-known/openid-configuration
+_WELL_KNOWN_SUFFIX = "/.well-known/openid-configuration"
+AUTHENTIK_APP_BASE_URL = (
+    AUTHENTIK_SERVER_METADATA_URL.removesuffix(_WELL_KNOWN_SUFFIX) + "/"
+    if AUTHENTIK_SERVER_METADATA_URL
+    else ""
+)
+
 OAUTH_PROVIDERS = [
     {
         "name": "authentik",
         "token_key": "access_token",
         "icon": "fa-lock",
         "remote_app": {
+            "api_base_url": AUTHENTIK_APP_BASE_URL,
             "client_id": AUTHENTIK_CLIENT_ID,
             "client_secret": AUTHENTIK_CLIENT_SECRET,
             "server_metadata_url": AUTHENTIK_SERVER_METADATA_URL,
             "client_kwargs": {
                 "scope": "openid profile email",
+                "token_endpoint_auth_method": "client_secret_basic",
             },
+            "access_token_url": "https://auth.b216.ru/application/o/token/",
+            "authorize_url": "https://auth.b216.ru/application/o/authorize/",
         },
     }
 ]
 
 CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
-
-#
+ENABLE_PROXY_FIX = True#
 # Optionally import superset_config_docker.py (which will have been included on
 # the PYTHONPATH) in order to allow for local settings to be overridden
 #

@@ -23,7 +23,7 @@ class CustomSsoSecurityManager(SupersetSecurityManager):
         if provider != "authentik":
             return {}
 
-        userinfo = self.appbuilder.sm.oauth_remotes[provider].get("userinfo").json()
+        userinfo = self.appbuilder.sm.oauth_remotes[provider].get("userinfo/").json()
 
         return {
             "username": userinfo.get("preferred_username"),
