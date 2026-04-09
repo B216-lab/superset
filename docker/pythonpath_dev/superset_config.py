@@ -27,6 +27,12 @@ SQLALCHEMY_DATABASE_URI = (
     f"{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
 )
 
+BABEL_DEFAULT_LOCALE = "ru"
+
+LANGUAGES = {
+    "en": {"flag": "us", "name": "English"},
+    "ru": {"flag": "ru", "name": "Русский"},
+}
 
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
