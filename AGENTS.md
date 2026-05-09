@@ -2,7 +2,7 @@
 
 ## Project identity
 
-This document describes the project structure for the Superset docker image.
+Describe project structure for Superset docker image.
 
 ## Project structure
 
@@ -17,31 +17,31 @@ superset/
 
 ## Guiding principles
 
-1. Spec-driven development. Specifications should be stored in the `specs/` directory. Every feature is specified in `specs/` before implementation begins. Code follows specs, not the other way around. Specs are living documents updated when requirements change.
-
+1. Spec-driven development. Store specs in `specs/`. Every feature need spec before implementation. Code follow specs, not reverse. Specs stay live, update when requirements change.
+2. Always use `caveman` skill to communicate, `caveman-review` to review, `caveman-commit` to generate commit messages and `caveman-compress` to make less verbose documents and comments
 
 ### Specification Workflow
 
-1. **Read the spec** in `specs/` before implementing any feature.
-2. **Implement** according to the spec's completion criteria.
-3. **Update the spec** if implementation reveals the spec was incomplete or incorrect.
-4. **Mark spec items as done** by checking their completion criteria checkboxes.
-5. **Never implement features that lack a spec.** Write the spec first.
+1. **Read spec** in `specs/` before implementing feature.
+2. **Implement** by spec completion criteria.
+3. **Update spec** if implementation show spec incomplete or wrong.
+4. **Mark spec items done** by checking completion criteria checkboxes.
+5. **Never implement feature without spec.** Write spec first.
 
 
 ## Python Coding standards
 
-- **Formatter**: `ruff format` — no manual formatting debates.
-- **Linter**: `ruff check` — fix all auto-fixable issues; remaining issues require manual resolution.
+- **Formatter**: `ruff format` - no manual formatting debate.
+- **Linter**: `ruff check` - fix all auto-fixable issues; manual fix rest.
 - **Line length**: 99 characters.
 - **Quotes**: Double quotes (`"`).
 - **Imports**: Sorted by `ruff`.
 
 ### Type-annotations
 
-- All public functions must have full type annotations (parameters and return types).
+- All public functions need full type annotations: params + return types.
 - Use `from __future__ import annotations` in every module.
-- Private/internal helpers should have annotations where non-obvious.
+- Private/internal helpers need annotations when non-obvious.
 - Prefer `str | None` over `Optional[str]`.
 
 
@@ -57,8 +57,8 @@ superset/
 ### Error Handling
 
 - Never swallow exceptions silently.
-- Use custom exception classes defined in a `exceptions.py` module.
-- Log errors with full context (URL, retry count, selector attempted) before re-raising or handling.
+- Use custom exception classes from `exceptions.py`.
+- Log errors with full context: URL, retry count, selector attempted, then re-raise or handle.
 
 ### Logging
 
@@ -67,8 +67,8 @@ superset/
 
 ### Comments and Docstrings
 
-- Do NOT write comments that merely narrate what code does.
-- Write docstrings for public classes and functions explaining *why* and *what* (not *how*).
+- Do NOT write comments that only narrate code.
+- Write docstrings for public classes and functions explaining *why* + *what*, not *how*.
 - Use Google-style docstrings.
 
 
@@ -86,7 +86,7 @@ uv sync
 
 ### Before committing
 
-* Run pre-commit hooks
+- Run pre-commit hooks
 
 
 ### Git Conventions
@@ -94,7 +94,7 @@ uv sync
 - Conventional commit messages: imperative mood, concise (`Add attendance extraction logic`, not `Added some stuff`).
 - Conventional branch naming: `feat/<short-description>`, `fix/<short-description>`, `spec/<short-description>`.
 - No force-pushes to `main`.
-- Specs changes and code changes may share a commit if they are tightly coupled.
+- Specs changes + code changes may share commit if tightly coupled.
 
 
 ### Common Commands
