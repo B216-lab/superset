@@ -1,13 +1,9 @@
 # 🐳 Apache Superset
 B216 Superset docker image with PostgreSQL driver and SSO support.
 
-```bash
-docker compose up -d --build
-```
+# 📖 Resources
 
 - _Superset's metadata database_ - database to store the information it manages, like the definitions of charts, dashboards, and many other things
-
-# 📖 Resources
 
 > Don't forget to check version of documentation
 

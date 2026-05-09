@@ -3,11 +3,10 @@ import os
 import sys
 
 from celery.schedules import crontab
-from flask_caching.backends.filesystemcache import FileSystemCache
-from flask_appbuilder.security.manager import AUTH_OAUTH
-from redis import Redis
-
 from custom_sso_security_manager import CustomSsoSecurityManager
+from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_caching.backends.filesystemcache import FileSystemCache
+from redis import Redis
 
 logger = logging.getLogger()
 
@@ -33,7 +32,7 @@ LANGUAGES = {
     "en": {"flag": "us", "name": "English"},
     "ru": {"flag": "ru", "name": "Русский"},
 }
-PUBLIC_ROLE_LIKE = "Public
+PUBLIC_ROLE_LIKE = "Public"
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
@@ -84,10 +83,7 @@ class CeleryConfig:
 
 CELERY_CONFIG = CeleryConfig
 
-FEATURE_FLAGS = {
-    "ALERT_REPORTS": True,
-    "DASHBOARD_RBAC": True
-}
+FEATURE_FLAGS = {"ALERT_REPORTS": True, "DASHBOARD_RBAC": True}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = f"http://superset_app{os.environ.get('SUPERSET_APP_ROOT', '/')}/"  # When using docker compose baseurl should be http://superset_nginx{ENV{BASEPATH}}/  # noqa: E501
 # The base URL for the email report hyperlinks.
@@ -119,7 +115,9 @@ AUTHENTIK_SERVER_METADATA_URL = os.getenv("AUTHENTIK_SERVER_METADATA_URL")
 AUTHENTIK_BASE_URL = os.getenv("AUTHENTIK_BASE_URL")
 AUTHENTIK_APPLICATION_SLUG = os.getenv("AUTHENTIK_APPLICATION_SLUG")
 
-AUTHENTIK_APP_BASE_URL = f"{AUTHENTIK_BASE_URL}/application/o/{AUTHENTIK_APPLICATION_SLUG}/"
+AUTHENTIK_APP_BASE_URL = (
+    f"{AUTHENTIK_BASE_URL}/application/o/{AUTHENTIK_APPLICATION_SLUG}/"
+)
 
 AUTH_TYPE = AUTH_OAUTH
 AUTH_USER_REGISTRATION = True
@@ -137,8 +135,8 @@ OAUTH_PROVIDERS = [
         "token_key": "access_token",
         "icon": "fa-lock",
         "remote_app": {
-            "api_base_url":  AUTHENTIK_APP_BASE_URL,
-            "client_id":     AUTHENTIK_CLIENT_ID,
+            "api_base_url": AUTHENTIK_APP_BASE_URL,
+            "client_id": AUTHENTIK_CLIENT_ID,
             "client_secret": AUTHENTIK_CLIENT_SECRET,
             "server_metadata_url": f"{AUTHENTIK_APP_BASE_URL}.well-known/openid-configuration",
             "client_kwargs": {
@@ -146,7 +144,7 @@ OAUTH_PROVIDERS = [
                 "token_endpoint_auth_method": "client_secret_basic",
             },
             "access_token_url": f"{AUTHENTIK_BASE_URL}/application/o/token/",
-            "authorize_url":    f"{AUTHENTIK_BASE_URL}/application/o/authorize/",
+            "authorize_url": f"{AUTHENTIK_BASE_URL}/application/o/authorize/",
         },
     }
 ]
