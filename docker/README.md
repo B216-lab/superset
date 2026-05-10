@@ -35,6 +35,28 @@ To run the container, simply run: `docker compose up`
 After waiting several minutes for Superset initialization to finish, you can open a browser and view [`http://localhost:8088`](http://localhost:8088)
 to start your journey.
 
+## Local Login Without Authentik
+
+For local development without Authentik, use the local override stack:
+
+`just local-dev`
+
+This recipe writes `docker/.env-local` with local-only overrides before starting containers.
+
+This override switches Superset to:
+
+- local database auth (`SUPERSET_AUTH_MODE=db`)
+- debug logging (`SUPERSET_LOG_LEVEL=debug`)
+- Flask debug mode (`FLASK_DEBUG=true`)
+- disposable Postgres datasource registration (`Local Test Postgres`)
+- seeded sample table (`public.sales_orders`)
+- Superset example dashboards/charts (`SUPERSET_LOAD_EXAMPLES=yes`)
+
+Login with:
+
+- username: `admin`
+- password: `admin` (or `ADMIN_PASSWORD` if you override it)
+
 ## Developing
 
 While running, the container server will reload on modification of the Superset Python and JavaScript source code.

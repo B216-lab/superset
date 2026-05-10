@@ -4,7 +4,7 @@ import sys
 
 from celery.schedules import crontab
 from custom_sso_security_manager import CustomSsoSecurityManager
-from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.security.manager import AUTH_DB, AUTH_OAUTH
 from flask_caching.backends.filesystemcache import FileSystemCache
 from redis import Redis
 
@@ -32,7 +32,8 @@ LANGUAGES = {
     "en": {"flag": "us", "name": "English"},
     "ru": {"flag": "ru", "name": "Русский"},
 }
-PUBLIC_ROLE_LIKE = "Public"
+PUBLIC_ROLE_LIKE = "Gamma"
+AUTH_ROLE_PUBLIC = "Public"
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
@@ -95,6 +96,19 @@ SQLLAB_CTAS_NO_LIMIT = True
 log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")
 LOG_LEVEL = getattr(logging, log_level_text.upper(), logging.INFO)
 
+
+def _get_auth_mode() -> str:
+    auth_mode = os.getenv("SUPERSET_AUTH_MODE", "oauth").strip().lower()
+    allowed_modes = {"db", "oauth"}
+    if auth_mode not in allowed_modes:
+        allowed_modes_text = ", ".join(sorted(allowed_modes))
+        raise ValueError(
+            "Unsupported SUPERSET_AUTH_MODE="
+            f"{auth_mode!r}. Expected one of: {allowed_modes_text}."
+        )
+    return auth_mode
+
+
 if os.getenv("CYPRESS_CONFIG") == "true":
     # When running the service as a cypress backend, we need to import the config
     # located @ tests/integration_tests/superset_test_config.py
@@ -107,49 +121,66 @@ if os.getenv("CYPRESS_CONFIG") == "true":
 
     sys.path.pop(0)
 
-# OAuth / SSO configuration for Authentik (OpenID Connect).
-# CHANGEME: set these values in docker/.env-local before deployment.
-AUTHENTIK_CLIENT_ID = os.getenv("AUTHENTIK_CLIENT_ID")
-AUTHENTIK_CLIENT_SECRET = os.getenv("AUTHENTIK_CLIENT_SECRET")
-AUTHENTIK_SERVER_METADATA_URL = os.getenv("AUTHENTIK_SERVER_METADATA_URL")
-AUTHENTIK_BASE_URL = os.getenv("AUTHENTIK_BASE_URL")
-AUTHENTIK_APPLICATION_SLUG = os.getenv("AUTHENTIK_APPLICATION_SLUG")
+SUPERSET_AUTH_MODE = _get_auth_mode()
+AUTH_TYPE = AUTH_DB
 
-AUTHENTIK_APP_BASE_URL = (
-    f"{AUTHENTIK_BASE_URL}/application/o/{AUTHENTIK_APPLICATION_SLUG}/"
-)
-
-AUTH_TYPE = AUTH_OAUTH
-AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = "Gamma"
-AUTH_ROLES_SYNC_AT_LOGIN = True
-AUTH_ROLES_MAPPING = {
-    "superset_admins": ["Admin"],
-    "superset_alpha": ["Alpha"],
-    "superset_gamma": ["Gamma"],
-}
-
-OAUTH_PROVIDERS = [
-    {
-        "name": "authentik",
-        "token_key": "access_token",
-        "icon": "fa-lock",
-        "remote_app": {
-            "api_base_url": AUTHENTIK_APP_BASE_URL,
-            "client_id": AUTHENTIK_CLIENT_ID,
-            "client_secret": AUTHENTIK_CLIENT_SECRET,
-            "server_metadata_url": f"{AUTHENTIK_APP_BASE_URL}.well-known/openid-configuration",
-            "client_kwargs": {
-                "scope": "openid profile email",
-                "token_endpoint_auth_method": "client_secret_basic",
-            },
-            "access_token_url": f"{AUTHENTIK_BASE_URL}/application/o/token/",
-            "authorize_url": f"{AUTHENTIK_BASE_URL}/application/o/authorize/",
-        },
+if SUPERSET_AUTH_MODE == "oauth":
+    # CHANGEME: set these values in docker/.env-local before deployment.
+    authentik_settings = {
+        "AUTHENTIK_CLIENT_ID": os.getenv("AUTHENTIK_CLIENT_ID"),
+        "AUTHENTIK_CLIENT_SECRET": os.getenv("AUTHENTIK_CLIENT_SECRET"),
+        "AUTHENTIK_BASE_URL": os.getenv("AUTHENTIK_BASE_URL"),
+        "AUTHENTIK_APPLICATION_SLUG": os.getenv("AUTHENTIK_APPLICATION_SLUG"),
     }
-]
+    missing_authentik_settings = [
+        key for key, value in authentik_settings.items() if not value
+    ]
+    if missing_authentik_settings:
+        missing_authentik_settings_text = ", ".join(missing_authentik_settings)
+        raise ValueError(
+            "SUPERSET_AUTH_MODE='oauth' requires Authentik settings: "
+            f"{missing_authentik_settings_text}."
+        )
 
-CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+    authentik_base_url = authentik_settings["AUTHENTIK_BASE_URL"]
+    authentik_application_slug = authentik_settings["AUTHENTIK_APPLICATION_SLUG"]
+    authentik_app_base_url = (
+        f"{authentik_base_url}/application/o/{authentik_application_slug}/"
+    )
+
+    AUTH_TYPE = AUTH_OAUTH
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Gamma"
+    AUTH_ROLES_SYNC_AT_LOGIN = True
+    AUTH_ROLES_MAPPING = {
+        "superset_admins": ["Admin"],
+        "superset_alpha": ["Alpha"],
+        "superset_gamma": ["Gamma"],
+    }
+    OAUTH_PROVIDERS = [
+        {
+            "name": "authentik",
+            "token_key": "access_token",
+            "icon": "fa-lock",
+            "remote_app": {
+                "api_base_url": authentik_app_base_url,
+                "client_id": authentik_settings["AUTHENTIK_CLIENT_ID"],
+                "client_secret": authentik_settings["AUTHENTIK_CLIENT_SECRET"],
+                "server_metadata_url": (
+                    f"{authentik_app_base_url}.well-known/openid-configuration"
+                ),
+                "client_kwargs": {
+                    "scope": "openid profile email",
+                    "token_endpoint_auth_method": "client_secret_basic",
+                },
+                "access_token_url": f"{authentik_base_url}/application/o/token/",
+                "authorize_url": f"{authentik_base_url}/application/o/authorize/",
+            },
+        }
+    ]
+    CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+
+logger.info("Superset auth mode: %s", SUPERSET_AUTH_MODE)
 ENABLE_PROXY_FIX = True
 #
 # Optionally import superset_config_docker.py (which will have been included on

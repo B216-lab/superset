@@ -7,10 +7,12 @@ set -e
 #
 /app/docker/docker-bootstrap.sh
 
+STEP_CNT=3
+if [ "${LOCAL_TEST_DATASOURCE_ENABLED:-false}" = "true" ]; then
+    STEP_CNT=$((STEP_CNT + 1))
+fi
 if [ "$SUPERSET_LOAD_EXAMPLES" = "yes" ]; then
-    STEP_CNT=4
-else
-    STEP_CNT=3
+    STEP_CNT=$((STEP_CNT + 1))
 fi
 
 echo_step() {
@@ -45,9 +47,16 @@ echo_step "3" "Starting" "Setting up roles and perms"
 superset init
 echo_step "3" "Complete" "Setting up roles and perms"
 
+if [ "${LOCAL_TEST_DATASOURCE_ENABLED:-false}" = "true" ]; then
+    echo_step "4" "Starting" "Registering local test datasource"
+    python /app/docker/register_local_test_datasource.py
+    echo_step "4" "Complete" "Registering local test datasource"
+fi
+
 if [ "$SUPERSET_LOAD_EXAMPLES" = "yes" ]; then
+    EXAMPLES_STEP="$STEP_CNT"
     # Load some data to play with
-    echo_step "4" "Starting" "Loading examples"
+    echo_step "$EXAMPLES_STEP" "Starting" "Loading examples"
 
 
     # If Cypress run which consumes superset_test_config – load required data for tests
@@ -56,5 +65,5 @@ if [ "$SUPERSET_LOAD_EXAMPLES" = "yes" ]; then
     else
         superset load_examples
     fi
-    echo_step "4" "Complete" "Loading examples"
+    echo_step "$EXAMPLES_STEP" "Complete" "Loading examples"
 fi

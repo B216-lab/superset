@@ -1,3 +1,8 @@
 up:
     cp docker/.env.example docker/.env
     docker compose up -d --build
+
+local-dev:
+    cp docker/.env.example docker/.env
+    printf '%s\n' 'SUPERSET_AUTH_MODE=db' 'SUPERSET_ENV=development' 'FLASK_DEBUG=true' 'SUPERSET_LOG_LEVEL=debug' 'SUPERSET_LOAD_EXAMPLES=yes' 'LOCAL_TEST_DATASOURCE_ENABLED=true' 'LOCAL_TEST_DATASOURCE_NAME=Local Test Postgres' 'LOCAL_TEST_DB_HOST=superset-test-db' 'LOCAL_TEST_DB_PORT=5432' 'LOCAL_TEST_DB_NAME=superset_test' 'LOCAL_TEST_DB_USER=superset_test' 'LOCAL_TEST_DB_PASSWORD=superset_test' > docker/.env-local
+    docker compose -f compose.yml -f compose.local.yml --profile local up -d --build

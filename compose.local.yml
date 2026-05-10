@@ -1,0 +1,86 @@
+services:
+  superset-test-db:
+    profiles: ["local"]
+    image: postgres:16
+    container_name: superset_test_db
+    environment:
+      POSTGRES_DB: superset_test
+      POSTGRES_PASSWORD: superset_test
+      POSTGRES_USER: superset_test
+    ports:
+      - 15432:5432
+    volumes:
+      - ./docker/local-test-data/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset_test -d superset_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  superset:
+    profiles: ["local"]
+    command: ["/app/docker/docker-bootstrap.sh", "app"]
+    environment:
+      FLASK_DEBUG: "true"
+      LOCAL_TEST_DATASOURCE_ENABLED: "true"
+      LOCAL_TEST_DATASOURCE_NAME: Local Test Postgres
+      LOCAL_TEST_DB_HOST: superset-test-db
+      LOCAL_TEST_DB_NAME: superset_test
+      LOCAL_TEST_DB_PASSWORD: superset_test
+      LOCAL_TEST_DB_PORT: "5432"
+      LOCAL_TEST_DB_USER: superset_test
+      SUPERSET_AUTH_MODE: db
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: "yes"
+      SUPERSET_LOG_LEVEL: debug
+
+  superset-init:
+    profiles: ["local"]
+    depends_on:
+      superset-test-db:
+        condition: service_healthy
+    environment:
+      FLASK_DEBUG: "true"
+      LOCAL_TEST_DATASOURCE_ENABLED: "true"
+      LOCAL_TEST_DATASOURCE_NAME: Local Test Postgres
+      LOCAL_TEST_DB_HOST: superset-test-db
+      LOCAL_TEST_DB_NAME: superset_test
+      LOCAL_TEST_DB_PASSWORD: superset_test
+      LOCAL_TEST_DB_PORT: "5432"
+      LOCAL_TEST_DB_USER: superset_test
+      SUPERSET_AUTH_MODE: db
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: "yes"
+      SUPERSET_LOG_LEVEL: debug
+
+  superset-worker:
+    profiles: ["local"]
+    environment:
+      FLASK_DEBUG: "true"
+      LOCAL_TEST_DATASOURCE_ENABLED: "true"
+      LOCAL_TEST_DATASOURCE_NAME: Local Test Postgres
+      LOCAL_TEST_DB_HOST: superset-test-db
+      LOCAL_TEST_DB_NAME: superset_test
+      LOCAL_TEST_DB_PASSWORD: superset_test
+      LOCAL_TEST_DB_PORT: "5432"
+      LOCAL_TEST_DB_USER: superset_test
+      SUPERSET_AUTH_MODE: db
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: "yes"
+      SUPERSET_LOG_LEVEL: debug
+
+  superset-worker-beat:
+    profiles: ["local"]
+    environment:
+      FLASK_DEBUG: "true"
+      LOCAL_TEST_DATASOURCE_ENABLED: "true"
+      LOCAL_TEST_DATASOURCE_NAME: Local Test Postgres
+      LOCAL_TEST_DB_HOST: superset-test-db
+      LOCAL_TEST_DB_NAME: superset_test
+      LOCAL_TEST_DB_PASSWORD: superset_test
+      LOCAL_TEST_DB_PORT: "5432"
+      LOCAL_TEST_DB_USER: superset_test
+      SUPERSET_AUTH_MODE: db
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: "yes"
+      SUPERSET_LOG_LEVEL: debug
