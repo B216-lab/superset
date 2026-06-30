@@ -15,10 +15,28 @@ superset/
 └── Dockerfile                 # Superset image with PostgreSQL driver and SSO on top
 ```
 
-## Guiding principles
+## Other
 
-1. Spec-driven development. Store specs in `specs/`. Every feature need spec before implementation. Code follow specs, not reverse. Specs stay live, update when requirements change.
-2. Always use `caveman` skill to communicate, `caveman-review` to review, `caveman-commit` to generate commit messages and `caveman-compress` to make less verbose documents and comments
+### RTK
+
+- Use `~/.codex/RTK.md`: prefix shell commands with `rtk` when compatible.
+- Prefer `rtk read`, `rtk git`, `rtk test`, `rtk pnpm/npm/npx`, `rtk tsc/lint`, `rtk docker/go/python` wrappers.
+- Use `rtk proxy <cmd>` for unsupported commands when possible.
+- Use native command only if RTK hides needed output or changes behavior; state why briefly.
+
+### Caveman
+
+- Always use `caveman` skill for talk, use ultra level
+- Prefer caveman-family skills when task matches: `caveman-commit` for commits or commit messages, `caveman-review` for normal code review, `caveman-compress` for skill or memory summaries
+
+---
+
+- Use heavier review skills only when user asks for deep, security, performance, or framework-specific review
+- Use global skill definitions as source of truth for when skills apply; do not treat this file as skill index
+- Use only minimal relevant skill set. Do not load broad skills just in case
+- After reading any skill, retain only a `caveman-compress` ultra-style summary for current turn; avoid re-reading full skill body unless task needs exact detail
+- When you do something, don't spam with some new readme, additional documentation or anything like that until I ask for it
+
 
 ### Specification Workflow
 
