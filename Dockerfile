@@ -5,7 +5,9 @@ FROM node:20-bookworm-slim AS ru-language-pack
 ARG SUPERSET_VERSION
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates=20230311+deb12u1 \
+        curl=7.88.1-10+deb12u14 && \
     rm -rf /var/lib/apt/lists/* && \
     npm install --global po2json@0.4.5
 
