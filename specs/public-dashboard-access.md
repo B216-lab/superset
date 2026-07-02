@@ -39,3 +39,13 @@ If direct public link still shows too much Superset UI:
 
 - iframe: wrap public dashboard URL in custom page
 - Superset Embedded SDK: use `hideTitle`, `hideTab`, `hideChartControls`, `filters.visible`, `filters.expanded`, `urlParams.permalink_key`
+
+
+# Public role permissions
+
+- can read Chart
+- can read Dataset
+- can read Dashboard
+- can read Database
+- can explore json Superset
+- can dashboard Superset
